@@ -1,17 +1,22 @@
 <?php
-// config.php - koneksi database
-session_start();
-$DB_HOST = '127.0.0.1';
-$DB_NAME = 'bukutamu_pnbatam';
-$DB_USER = 'root';
-$DB_PASS = ''; // XAMPP default: kosong
+// CONFIG UNTUK LARAGON
+$host = 'localhost';   // Laragon WAJIB pakai localhost
+$port = 3306;          // port default Laragon MySQL
+$db   = 'pbl_bukutamu';
+$user = 'root';        // default user Laragon
+$pass = '';            // default password Laragon kosong
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+
+$options = [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+];
 
 try {
-    $pdo = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME;charset=utf8mb4", $DB_USER, $DB_PASS, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
-} catch (Exception $e) {
-    die('Koneksi DB gagal: ' . $e->getMessage());
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (PDOException $e) {
+    die("Koneksi gagal: " . $e->getMessage());
 }
 ?>

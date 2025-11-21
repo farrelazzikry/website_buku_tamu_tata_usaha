@@ -1,130 +1,192 @@
-<?php
-require 'config.php';
-$perPage = 6;
-$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$search = isset($_GET['q']) ? trim($_GET['q']) : '';
-$params = [];
-$where = '';
-if ($search !== '') {
-    $where = "WHERE name LIKE :s OR email LIKE :s OR purpose LIKE :s OR institution LIKE :s";
-    $params[':s'] = "%$search%";
-}
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM guests $where");
-$stmt->execute($params);
-$total = $stmt->fetchColumn();
-$pages = (int)ceil($total / $perPage);
-$offset = ($page - 1) * $perPage;
-$stmt = $pdo->prepare("SELECT * FROM guests $where ORDER BY created_at DESC LIMIT :off, :lim");
-foreach ($params as $k=>$v) $stmt->bindValue($k, $v);
-$stmt->bindValue(':off', (int)$offset, PDO::PARAM_INT);
-$stmt->bindValue(':lim', (int)$perPage, PDO::PARAM_INT);
-$stmt->execute();
-$guests = $stmt->fetchAll();
-?>
-<!doctype html>
+<?php include 'config.php'; ?>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Buku Tamu - Tata Usaha Politeknik Negeri Batam</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buku Tamu - Polibatam</title>
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Style -->
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+      background: url('assets/images/polibatam-bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      backdrop-filter: blur(8px);
+      background-color: rgba(255, 255, 255, 0.7);
+      z-index: -1;
+    }
+
+    nav.navbar {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-brand img { height: 40px; }
+
+    .card-custom {
+      border: none;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+      animation: fadeIn 1s ease;
+    }
+
+    .card-custom:hover { transform: translateY(-5px); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-control {
+      border-radius: 12px;
+      padding-left: 2.5rem;
+      border: 1px solid #ddd;
+    }
+
+    .form-control:focus {
+      border-color: #004aad;
+      box-shadow: 0 0 0 0.2rem rgba(0, 74, 173, 0.25);
+    }
+
+    .form-icon {
+      position: absolute;
+      left: 15px;
+      top: 11px;
+      color: #6c757d;
+    }
+
+    .btn-primary {
+      background-color: #2a6cc2ff;
+      border: none;
+      border-radius: 12px;
+      transition: 0.3s;
+    }
+
+    .btn-primary:hover {
+      background-color: #67c4f3ff;
+      transform: scale(1.03);
+    }
+
+    h4 { color: #004aad; font-weight: 600; }
+
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      padding: 20px 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="/pbl_bukutamu/">
-      <img src="assets/images/logo.png" alt="Polibatam" height="48" style="margin-right:12px">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="assets/images/logo.png" alt="Polibatam" class="me-2">
       <div>
-        <div class="fw-bold" style="color:#0b3b5b">Politeknik Negeri Batam</div>
+        <div class="fw-bold text-primary">Politeknik Negeri Batam</div>
         <small class="text-muted">Buku Tamu — Tata Usaha</small>
       </div>
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navmenu">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="index.php">Beranda</a></li>
-        <li class="nav-item"><a class="nav-link" href="tentang.php">Tentang</a></li>
-        <li class="nav-item"><a class="nav-link" href="admin/login.php">Admin</a></li>
-      </ul>
-    </div>
+
+    <ul class="navbar-nav ms-auto">
+      <li class="nav-item"><a class="nav-link fw-semibold" href="index.php">Beranda</a></li>
+      <li class="nav-item"><a class="nav-link fw-semibold" href="tentang.php">Tentang</a></li>
+      <li class="nav-item"><a class="nav-link fw-semibold" href="admin/login.php">Admin</a></li>
+    </ul>
   </div>
 </nav>
 
-<div class="container py-4">
-  <div class="row">
-    <div class="col-md-6">
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>Isi Buku Tamu</h5>
-          <form action="submit.php" method="post" id="guestForm">
-            <div class="mb-3">
-              <label class="form-label">Nama *</label>
-              <input name="name" class="form-control" required maxlength="200">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input name="email" type="email" class="form-control" maxlength="200">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">No. Telepon</label>
-              <input name="phone" class="form-control" maxlength="50">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Instansi / Jurusan</label>
-              <input name="institution" class="form-control" maxlength="200">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Keperluan *</label>
-              <textarea name="purpose" class="form-control" required rows="3"></textarea>
-            </div>
-            <button class="btn btn-primary">Kirim</button>
-          </form>
-        </div>
+<!-- Isi Halaman -->
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="card card-custom p-4" style="max-width: 500px; width: 100%;">
+    <h4 class="mb-3 text-center">
+      <i class="bi bi-pencil-square me-2"></i>Isi Buku Tamu
+    </h4>
+
+    <form method="POST" action="simpan_tamu.php">
+      <!-- Nama -->
+      <div class="mb-3 position-relative">
+        <i class="bi bi-person form-icon"></i>
+        <input type="text" name="nama" class="form-control" placeholder="Nama *" required>
       </div>
-    </div>
 
-    <div class="col-md-6">
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>Daftar Pengunjung</h5>
-          <form class="d-flex mb-2" method="get">
-            <input name="q" value="<?=htmlspecialchars($search)?>" class="form-control me-2" placeholder="Cari nama, email, keperluan...">
-            <button class="btn btn-outline-secondary">Cari</button>
-          </form>
-
-          <?php if (!$guests): ?>
-            <p class="text-muted">Belum ada tamu.</p>
-          <?php else: ?>
-            <ul class="list-group">
-              <?php foreach ($guests as $g): ?>
-                <li class="list-group-item">
-                  <div class="fw-bold"><?=htmlspecialchars($g['name'])?></div>
-                  <div class="small text-muted"><?=date('d M Y H:i', strtotime($g['created_at']))?> — <?=htmlspecialchars($g['institution'])?></div>
-                  <div><?=nl2br(htmlspecialchars($g['purpose']))?></div>
-                </li>
-              <?php endforeach; ?>
-            </ul>
-
-            <nav class="mt-3">
-              <ul class="pagination">
-                <?php for ($p=1;$p<=$pages;$p++): ?>
-                  <li class="page-item <?=($p==$page)?'active':''?>"><a class="page-link" href="?page=<?=$p?>&q=<?=urlencode($search)?>"><?=$p?></a></li>
-                <?php endfor; ?>
-              </ul>
-            </nav>
-
-          <?php endif; ?>
-        </div>
+      <!-- NIM/NIK -->
+      <div class="mb-3 position-relative">
+        <i class="bi bi-person-vcard form-icon"></i>
+        <input type="text" name="nim_nik" class="form-control" placeholder="NIM / NIK *" required>
       </div>
-    </div>
+
+      <!-- Email -->
+      <div class="mb-3 position-relative">
+        <i class="bi bi-envelope form-icon"></i>
+        <input type="email" name="email" class="form-control" placeholder="Email">
+      </div>
+
+      <!-- Telepon -->
+      <div class="mb-3 position-relative">
+        <i class="bi bi-telephone form-icon"></i>
+        <input type="text" name="telepon" class="form-control" placeholder="No. Telepon">
+      </div>
+
+      <!-- Instansi -->
+      <div class="mb-3 position-relative">
+        <i class="bi bi-building form-icon"></i>
+        <input type="text" name="instansi" class="form-control" placeholder="Masukkan Prodi atau Instansi">
+      </div>
+
+      <!-- Keperluan -->
+      <div class="mb-3 position-relative">
+        <i class="bi bi-chat-left-text form-icon"></i>
+        <textarea name="keperluan" class="form-control" placeholder="Keperluan *" rows="3" required></textarea>
+      </div>
+
+      <!-- Tombol -->
+      <button type="submit" class="btn btn-primary w-100 py-2">
+        <i class="bi bi-send me-2"></i>Kirim
+      </button>
+    </form>
   </div>
-
-  <footer class="text-center text-muted small mt-4">Politeknik Negeri Batam — Tata Usaha</footer>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<footer>
+  © 2025 Politeknik Negeri Batam — Tata Usaha
+</footer>
+
+<!-- ✅ SweetAlert Notifikasi -->
+<?php if (isset($_GET['status']) && $_GET['status'] === 'success'): ?>
+<script>
+Swal.fire({
+  icon: 'success',
+  title: 'Data Berhasil Disimpan!',
+  text: 'Terima kasih telah mengisi buku tamu 😊',
+  showConfirmButton: false,
+  timer: 2500
+});
+</script>
+<?php endif; ?>
+
 </body>
 </html>

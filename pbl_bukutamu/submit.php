@@ -22,4 +22,3 @@ $stmt->execute([
 ]);
 header('Location: thankyou.php'); exit;
 ?>
-khbiyvfyf8
