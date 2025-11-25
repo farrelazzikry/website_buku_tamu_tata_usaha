@@ -17,4 +17,3 @@ $stmt->execute(['id' => $id]);
 header('Location: dashboard.php');
 exit;
 ?>
-
