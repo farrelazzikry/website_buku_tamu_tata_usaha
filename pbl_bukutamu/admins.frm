@@ -1,0 +1,16 @@
+TYPE=VIEW
+query=select `pbl_bukutamu`.`admin`.`id` AS `id`,`pbl_bukutamu`.`admin`.`name` AS `name`,`pbl_bukutamu`.`admin`.`username` AS `username`,`pbl_bukutamu`.`admin`.`email` AS `email`,`pbl_bukutamu`.`admin`.`password` AS `password`,`pbl_bukutamu`.`admin`.`role` AS `role`,`pbl_bukutamu`.`admin`.`created_at` AS `created_at` from `pbl_bukutamu`.`admin`
+md5=2f7847faaa70d8b5dedbc154765ff789
+updatable=1
+algorithm=0
+definer_user=root
+definer_host=localhost
+suid=2
+with_check_option=0
+timestamp=0001763088519039057
+create-version=2
+source=SELECT * FROM admin
+client_cs_name=cp850
+connection_cl_name=cp850_general_ci
+view_body_utf8=select `pbl_bukutamu`.`admin`.`id` AS `id`,`pbl_bukutamu`.`admin`.`name` AS `name`,`pbl_bukutamu`.`admin`.`username` AS `username`,`pbl_bukutamu`.`admin`.`email` AS `email`,`pbl_bukutamu`.`admin`.`password` AS `password`,`pbl_bukutamu`.`admin`.`role` AS `role`,`pbl_bukutamu`.`admin`.`created_at` AS `created_at` from `pbl_bukutamu`.`admin`
+mariadb-version=100432
