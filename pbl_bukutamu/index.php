@@ -142,19 +142,19 @@
       <!-- Email -->
       <div class="mb-3 position-relative">
         <i class="bi bi-envelope form-icon"></i>
-        <input type="email" name="email" class="form-control" placeholder="Email">
+        <input type="email" name="email" class="form-control" placeholder="Email *" required>
       </div>
 
       <!-- Telepon -->
       <div class="mb-3 position-relative">
         <i class="bi bi-telephone form-icon"></i>
-        <input type="text" name="telepon" class="form-control" placeholder="No. Telepon">
+        <input type="number" name="telepon" class="form-control" placeholder="No. Telepon *" required>
       </div>
 
       <!-- Instansi -->
       <div class="mb-3 position-relative">
         <i class="bi bi-building form-icon"></i>
-        <input type="text" name="instansi" class="form-control" placeholder="Masukkan Prodi atau Instansi">
+        <input type="text" name="instansi" class="form-control" placeholder="Masukkan Prodi atau Instansi *" required>
       </div>
 
       <!-- Keperluan -->
