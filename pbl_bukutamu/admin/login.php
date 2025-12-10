@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       color: #000000;
       text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6);
       font: 25px sans-serif;
-      text: center;
+      text-align: center;
     }
 
     .form-control {
@@ -193,6 +193,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       font-size: 14px;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     }
+
+    /* ===== PERINGATAN ADMIN BERGERAK ===== */
+    .admin-warning {
+      color: #ff0000;
+      font-weight: 600;
+      margin-bottom: 15px;
+      overflow: hidden;
+      height: 25px;
+      position: relative;
+    }
+
+    .marquee {
+      display: inline-block;
+      white-space: nowrap;
+      position: absolute;
+      will-change: transform;
+      animation: marquee 5s linear infinite;
+    }
+
+    @keyframes marquee {
+      0% {
+        transform: translateX(100%);
+      }
+
+      100% {
+        transform: translateX(-100%);
+      }
+    }
   </style>
 </head>
 
@@ -200,6 +228,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="login-container">
     <div class="login-box">
       <img src="../assets/images/kampus-poli.jpg.png" alt="Polibatam Logo">
+
+      <!-- Peringatan Admin -->
+      <div class="admin-warning">
+        <div class="marquee">⚠️ Hanya admin yang bisa login!</div>
+      </div>
 
       <?php if ($error): ?>
         <div class="alert alert-danger py-2"><?= htmlspecialchars($error) ?></div>
@@ -211,11 +244,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit" class="btn-login mt-3">Masuk</button>
       </form>
 
-      <!-- 🔙 Tombol Kembali ke Buku Tamu -->
+      <!-- Tombol Kembali ke Buku Tamu -->
       <a href="../index.php" class="btn btn-back mt-3">
         <i class="bi bi-house-door"></i> Kembali ke Buku Tamu
       </a>
-
     </div>
   </div>
 
